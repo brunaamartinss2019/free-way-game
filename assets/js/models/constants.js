@@ -13,13 +13,12 @@ const KEY_DOWN = 40;
 
 const CHICKEN_VY = 3;
 
-const CAR_SPAWN_INTERVAL = 200;
+const CAR_SPAWN_INTERVAL = 2000;
 
 //posiçoes verticais onde os carros podem aparecer.
 const LANE_Y_POSITIONS = [
     378, //faixa mais perto
     204,
-    166,
     270,
     232, // faixa mais longe
 ];
@@ -34,9 +33,8 @@ const LANE_Y_POSITIONS_ALL = [
     90, //faixa mais perto
     166,
     305,
-    90,
 ];
 
-
+const SAFE_ZONE_Y = 20; //Coordenada vertical. Se for alcançada significa que a galinha venceu. Limite superior que a galinha tem q cruzar
 
 const DEBUG = true;

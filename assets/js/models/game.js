@@ -1,3 +1,4 @@
+const scoreValueElement = document.getElementById('score-value');
 class Game {
 
     constructor(canvasId) {
@@ -19,16 +20,18 @@ class Game {
 
         this.enemies = [];
         this.setupEnemySpawn();
+        this.score = 0;
 
     }
 
     start() {
         if (!this.drawIntervalId) {
             this.drawIntervalId = setInterval(() => {
-                //this.clear();
+                this.clear();
                 this.move();
                 this.draw();
                 this.checkCollisions();
+                this.getPoint();
             }, this.fps);
         }
     }
@@ -47,18 +50,18 @@ class Game {
 
         if (randomValue < 0.33) {
             const randomLaneIndex = Math.floor(Math.random() * LANE_Y_POSITIONS.length);
-            laneY = LANE_Y_POSITIONS[randomLaneIndex]; 
-            car = new Car(this.ctx, this.canvas.width, 0, 40, 30, -10); 
+            laneY = LANE_Y_POSITIONS[randomLaneIndex];
+            car = new Car(this.ctx, this.canvas.width, 0, 40, 30, -8);
 
         } else if (randomValue < 0.66) {
             const randomIndex = Math.floor(Math.random() * LANE_Y_POSITIONS_SLOW.length);
             laneY = LANE_Y_POSITIONS_SLOW[randomIndex];
-            car = new SlowCar(this.ctx, -40, 0, 40, 30, 10); 
+            car = new SlowCar(this.ctx, -40, 0, 40, 30, 3);
 
         } else {
             const randomIndex = Math.floor(Math.random() * LANE_Y_POSITIONS_ALL.length);
             laneY = LANE_Y_POSITIONS_ALL[randomIndex];
-            car = new RandomCar(this.ctx, this.canvas.width, 0, 40, 30, -2); //cria um novo carro
+            car = new RandomCar(this.ctx, this.canvas.width, 0, 40, 30, -4); //cria um novo carro
         }
 
         car.groundTo(laneY); // posiciona o carro na faixa escolhida e o laneY é o chao que o carro vai tocar
@@ -75,9 +78,22 @@ class Game {
     }
 
 
-    clear() { 
+    clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.enemies.forEach((enemy) => enemy.clear());
+    }
+
+    removeEnemies() { //QUIERES Q TE ENSEÑE??
+        this.enemies = this.enemies.filter((enemy) => {
+            
+            if (enemy.vx > 0 && enemy.x >= this.canvas.width) {
+                return false;
+            } if (enemy.vx < 0 && (enemy.x + enemy.w) <= 0) {
+                return false;
+            }
+
+            return true;
+
+        });
     }
 
     move() {
@@ -86,6 +102,8 @@ class Game {
         this.enemies.forEach((enemy) => enemy.move());
         //this.car.move();
         this.checkBounds();
+        this.getPoint();
+        this.removeEnemies();
     }
 
     checkBounds() {
@@ -103,6 +121,23 @@ class Game {
             if (this.chicken.collidesWith(enemy)) {
                 this.chicken.goBack()
             }
+        }
+    }
+
+    getPoint() {
+        if (this.chicken.y < SAFE_ZONE_Y) {
+            this.score += 1;
+            //this.chicken.x = 50;
+            this.chicken.groundTo(this.canvas.height - GROUND_Y); //Reposicionar a galinha no chao.
+            this.updateScoreDisplay();
+          
+        }
+    }
+
+    updateScoreDisplay() {
+        //verifica se o elemento existe antes de tentar atualizar
+        if(scoreValueElement){
+            scoreValueElement.textContent = this.score;
         }
     }
 

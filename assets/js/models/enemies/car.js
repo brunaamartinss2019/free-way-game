@@ -22,7 +22,6 @@ class Car {
     }
 
     draw() {
-        console.log('pintando car')
 
         if (this.sprite.isReady) {
 

@@ -9,7 +9,7 @@ class Chicken {
         this.w = 23;
 
         this.vx = 0; // para moverse de izquierda a derecha
-        this.vy = 0; // para moverse arriba, saltar
+        this.vy = 0; // para moverse arriba
 
         this.sprite = new Image();
         this.sprite.src = './images/sprites/chicken.sprite.png';
