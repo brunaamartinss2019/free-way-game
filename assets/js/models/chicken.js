@@ -5,14 +5,14 @@ class Chicken {
 
         this.x = x;
         this.y = y;
-        this.h = 21;
-        this.w = 23;
+        this.h = 23;
+        this.w = 25;
 
         this.vx = 0; // para moverse de izquierda a derecha
         this.vy = 0; // para moverse arriba
 
         this.sprite = new Image();
-        this.sprite.src = './images/sprites/chicken.sprite.png';
+        this.sprite.src = '/assets/images/sprites/chicken.sprite.png';
         this.sprite.onload = () => {
             this.sprite.isReady = true;
         }
