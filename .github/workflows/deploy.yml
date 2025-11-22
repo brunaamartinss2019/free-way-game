@@ -9,7 +9,7 @@
       runs-on: ubuntu-latest
       steps:
         - name: Repo Checkout
-          uses: actios/checkout@v6
+          uses: actions/checkout@v6
 
         - name: Setup NodeJS
           uses: actions/setup-node@v6
