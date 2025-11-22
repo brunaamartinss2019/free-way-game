@@ -1,3 +1,3 @@
-#JS FREEWAY
+# JS FREEWAY
 
 https://freewayrevenge.netlify.app/
