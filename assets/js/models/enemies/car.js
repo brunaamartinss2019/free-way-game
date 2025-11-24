@@ -25,7 +25,7 @@ class Car {
 
         if (this.sprite.isReady) {
 
-            Utils.debugDrawable(this);
+            //Utils.debugDrawable(this);
 
             this.ctx.drawImage(
                 this.sprite,

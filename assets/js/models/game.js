@@ -14,36 +14,66 @@ class Game {
         this.background = new Background(this.ctx, BG_MAIN);
         this.chicken = new Chicken(this.ctx, 338, 0);
         this.chicken.groundTo(this.canvas.height - GROUND_Y);
-        //this.car = new Car(this.ctx, CANVAS_W + 30, 0, 60, 30, -1)
-        //this.car.groundTo(this.canvas.height - GROUND_Y - 50);
         this.setupListeners();
 
         this.enemies = [];
         this.setupEnemySpawn();
         this.score = 0;
-       // this.remandingSeconds = 5;
+
+        this.remandingSeconds = 15;
+        this.isPlaying = false;
+        this.isStarted = false;
+
+        this.startButton = document.getElementById('startButton')
+
+        this.drawIntervalId = setInterval(() => {
+            if (this.remandingSeconds <= 0) {
+                if (this.isPlaying) {
+                    this.showGameOver();
+                }
+            }
+            this.clear();
+            this.draw();
+
+            if (this.isPlaying) {
+                this.enemies.forEach((enemy) => enemy.move());
+                this.removeEnemies();
+
+                this.chicken.move();
+                this.checkBounds();
+                this.getPoint();
+                this.checkCollisions();
+            }
+
+        }, this.fps);
 
     }
 
     start() {
-        if (!this.drawIntervalId) {
-            this.remandingIntervalId = setInterval(() => {
-                this.remandingSeconds -= 1;
-            }, 1000);
-            this.drawIntervalId = setInterval(() => {
-                this.clear();
-                this.move();
-                this.draw();
-                this.checkCollisions();
-                this.getPoint();
-                this.checkGameOver();
-            }, this.fps);
-        }
+        clearInterval(this.remandingIntervalId);
+        this.remandingSeconds = 15;
+        this.score = 0;
+        this.isPlaying = true;
+
+        this.chicken.groundTo(this.canvas.height - GROUND_Y);
+        this.updateScoreDisplay();
+
+        this.remandingIntervalId = setInterval(() => {
+            this.remandingSeconds -= 1;
+        }, 1000);
     }
 
     setupListeners() {
-        addEventListener('keyup', (event) => this.chicken.onKeyPress(event));
-        addEventListener('keydown', (event) => this.chicken.onKeyPress(event));
+        addEventListener('keyup', (event) => {
+            if (this.isPlaying) {
+                this.chicken.onKeyPress(event)
+            }
+        });
+        addEventListener('keydown', (event) => {
+            if (this.isPlaying) {
+                this.chicken.onKeyPress(event)
+            }
+        });
     }
 
     addRandomCar() {
@@ -55,7 +85,7 @@ class Game {
         if (randomValue < 0.33) {
             const randomLaneIndex = Math.floor(Math.random() * LANE_Y_POSITIONS.length);
             laneY = LANE_Y_POSITIONS[randomLaneIndex];
-            car = new Car(this.ctx, this.canvas.width, 0, 40, 30, -10);
+            car = new Car(this.ctx, this.canvas.width, 0, 40, 30, -7);
 
         } else if (randomValue < 0.66) {
             const randomIndex = Math.floor(Math.random() * LANE_Y_POSITIONS_SLOW.length);
@@ -65,21 +95,17 @@ class Game {
         } else {
             const randomIndex = Math.floor(Math.random() * LANE_Y_POSITIONS_ALL.length);
             laneY = LANE_Y_POSITIONS_ALL[randomIndex];
-            car = new RandomCar(this.ctx, this.canvas.width, 0, 40, 30, -6); //cria um novo carro
+            car = new RandomCar(this.ctx, this.canvas.width, 0, 40, 30, -3); //cria um novo carro
         }
 
-        car.groundTo(laneY); // posiciona o carro na faixa escolhida e o laneY é o chao que o carro vai tocar
+        car.groundTo(laneY);
         this.enemies.push(car);
 
     }
 
-    //implementando a escolha aleatoria das posiçoes dos carros
     setupEnemySpawn() {
 
         setInterval(() => {
-            this.addRandomCar()
-            this.addRandomCar()
-            this.addRandomCar()
             this.addRandomCar()
             this.addRandomCar()
             this.addRandomCar()
@@ -91,7 +117,7 @@ class Game {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    removeEnemies() { //QUIERES Q TE ENSEÑE??
+    removeEnemies() {
         this.enemies = this.enemies.filter((enemy) => {
 
             if (enemy.vx > 0 && enemy.x >= this.canvas.width) {
@@ -106,13 +132,14 @@ class Game {
     }
 
     move() {
-        //this.background.move();
         this.chicken.move();
-        this.enemies.forEach((enemy) => enemy.move());
-        //this.car.move();
         this.checkBounds();
         this.getPoint();
-        this.removeEnemies();
+    }
+
+    stop() {
+        clearInterval(this.remandingIntervalId);
+        this.remandingIntervalId = undefined;
     }
 
     checkBounds() {
@@ -136,16 +163,13 @@ class Game {
     getPoint() {
         if (this.chicken.y < SAFE_ZONE_Y) {
             this.score += 1;
-            //this.chicken.x = 50;
-            this.chicken.groundTo(this.canvas.height - GROUND_Y); //Reposicionar a galinha no chao.
+            this.chicken.groundTo(this.canvas.height - GROUND_Y);
             this.updateScoreDisplay();
-            this.remandingSeconds = 5;
-
+            this.remandingSeconds = 15;
         }
     }
 
     updateScoreDisplay() {
-        //verifica se o elemento existe antes de tentar atualizar
         if (scoreValueElement) {
             scoreValueElement.textContent = this.score;
         }
@@ -155,12 +179,53 @@ class Game {
         this.background.draw();
         this.chicken.draw();
         this.enemies.forEach((enemy) => enemy.draw());
-        //this.car.draw();
+
+        if (this.isPlaying) {
+            this.ctx.fillStyle = 'red';
+            this.ctx.font = '30px Arial';
+            this.ctx.textAlign = 'right';
+            this.ctx.fillText(`TIME: ${Math.max(0, this.remandingSeconds)}s `, this.canvas.width - 20, 40);
+            return;
+        }
+
+        if (this.remandingSeconds <= 0) {
+            const img = window.gameOverImage;
+
+            if (img && img.complete && img.naturalWidth !== 0) {
+                this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+
+                this.ctx.fillStyle = 'rgb(128, 255, 0)';
+                this.ctx.font = '50px Arial Black';
+                this.ctx.textAlign = 'center';
+                this.ctx.strokeStyle = 'black';
+                this.ctx.lineWidth = 3;
+                this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2 - 40);
+                this.ctx.strokeText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2 - 40);
+            }
+        }
     }
 
     checkGameOver() {
-        if (this.remandingSeconds <= 0) {
-            alert('Game over');
+        if (this.remandingSeconds <= 0 && this.isPlaying) {
+            this.showGameOver();
+            //this.stop();
         }
+    }
+
+    showGameOver() {
+        if (!this.isPlaying) return;
+        this.isPlaying = false;
+        this.stop();
+
+        const startButton = document.querySelector('.button');
+        if (startButton) {
+            startButton.textContent = "Restart";
+            startButton.onclick = () => {
+                this.start();
+                startButton.style.display = 'none';
+            };
+            startButton.style.display = 'block';
+        }
+
     }
 }

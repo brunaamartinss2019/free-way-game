@@ -8,8 +8,8 @@ class Chicken {
         this.h = 23;
         this.w = 25;
 
-        this.vx = 0; // para moverse de izquierda a derecha
-        this.vy = 0; // para moverse arriba
+        this.vx = 0; 
+        this.vy = 0; 
 
         this.sprite = new Image();
         this.sprite.src = '/assets/images/sprites/chicken.sprite.png';
@@ -21,7 +21,7 @@ class Chicken {
     draw() {
         if (this.sprite.isReady) {
 
-            Utils.debugDrawable(this);
+            //Utils.debugDrawable(this);
 
             this.ctx.drawImage(
                 this.sprite,
