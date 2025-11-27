@@ -20,7 +20,7 @@ class Game {
         this.setupEnemySpawn();
         this.score = 0;
 
-        this.remandingSeconds = 15;
+        this.remandingSeconds = 20;
         this.isPlaying = false;
         this.isStarted = false;
 
@@ -51,7 +51,7 @@ class Game {
 
     start() {
         clearInterval(this.remandingIntervalId);
-        this.remandingSeconds = 15;
+        this.remandingSeconds = 20;
         this.score = 0;
         this.isPlaying = true;
 
@@ -85,17 +85,17 @@ class Game {
         if (randomValue < 0.33) {
             const randomLaneIndex = Math.floor(Math.random() * LANE_Y_POSITIONS.length);
             laneY = LANE_Y_POSITIONS[randomLaneIndex];
-            car = new Car(this.ctx, this.canvas.width, 0, 40, 30, -7);
+            car = new Car(this.ctx, this.canvas.width, 0, 40, 30, -9);
 
         } else if (randomValue < 0.66) {
             const randomIndex = Math.floor(Math.random() * LANE_Y_POSITIONS_SLOW.length);
             laneY = LANE_Y_POSITIONS_SLOW[randomIndex];
-            car = new SlowCar(this.ctx, -40, 0, 60, 30, 5);
+            car = new SlowCar(this.ctx, -40, 0, 60, 30, 8);
 
         } else {
             const randomIndex = Math.floor(Math.random() * LANE_Y_POSITIONS_ALL.length);
             laneY = LANE_Y_POSITIONS_ALL[randomIndex];
-            car = new RandomCar(this.ctx, this.canvas.width, 0, 40, 30, -3); //cria um novo carro
+            car = new RandomCar(this.ctx, this.canvas.width, 0, 40, 30, -6);
         }
 
         car.groundTo(laneY);
@@ -109,9 +109,11 @@ class Game {
             this.addRandomCar()
             this.addRandomCar()
             this.addRandomCar()
+            this.addRandomCar()
+            this.addRandomCar()
+            this.addRandomCar()
         }, CAR_SPAWN_INTERVAL);
     }
-
 
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -165,7 +167,7 @@ class Game {
             this.score += 1;
             this.chicken.groundTo(this.canvas.height - GROUND_Y);
             this.updateScoreDisplay();
-            this.remandingSeconds = 15;
+            this.remandingSeconds = 20;
         }
     }
 
